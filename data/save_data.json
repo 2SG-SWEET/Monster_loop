@@ -1,0 +1,47 @@
+{
+  "version": "1.0.0",
+  "player": {
+    "current_tier": 0,
+    "currency": 0,
+    "current_loop": 0
+  },
+  "monsters": [
+    {
+      "uuid": "starter_001",
+      "display_name": "初始火精灵",
+      "species": "fire_slime",
+      "element": 0,
+      "level": 5,
+      "base_hp": 100,
+      "base_atk": 30,
+      "base_def": 20,
+      "base_spd": 20,
+      "skills": ["tackle", "fireball"],
+      "traits": [],
+      "captured_at": "2026-04-07"
+    }
+  ],
+  "selected_monsters": [],
+  "eggs": [],
+  "inventory": {
+    "pokeballs": 8,
+    "gene_fragments": 0,
+    "evolution_stones": 0,
+    "life_shard": 0,
+    "tech_module": 0,
+    "core_fire": 0
+  },
+  "deck": {
+    "cards": [
+      {"module_id": "light_forest", "count": 2},
+      {"module_id": "abandoned_lab", "count": 1},
+      {"module_id": "lava_crack", "count": 2}
+    ]
+  },
+  "unlocked_modules": ["light_forest", "abandoned_lab", "lava_crack"],
+  "game_state": {
+    "current_phase": 0,
+    "boss_progress": 0,
+    "total_charge": 0
+  }
+}

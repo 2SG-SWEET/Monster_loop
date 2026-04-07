@@ -1,0 +1,85 @@
+[gd_scene load_steps=2 format=3 uid="uid://combat_scene"]
+
+[ext_resource type="Script" path="res://scripts/combat/CombatScene.gd" id="1_combat"]
+
+[node name="CombatScene" type="Node"]
+script = ExtResource("1_combat")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="BattleUI" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TurnOrderPanel" type="HBoxContainer" parent="UI/BattleUI"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -150.0
+offset_top = 20.0
+offset_right = 150.0
+offset_bottom = 60.0
+grow_horizontal = 2
+
+[node name="EnemyUnits" type="HBoxContainer" parent="UI/BattleUI"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 80.0
+offset_right = 200.0
+offset_bottom = 180.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="PlayerUnits" type="HBoxContainer" parent="UI/BattleUI"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -250.0
+offset_right = 200.0
+offset_bottom = -150.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="ActionPanel" type="HBoxContainer" parent="UI/BattleUI"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -140.0
+offset_right = 200.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="MessageLabel" type="Label" parent="UI/BattleUI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -20.0
+offset_right = 150.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_alignment = 1
+vertical_alignment = 1
