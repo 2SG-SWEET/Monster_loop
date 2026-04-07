@@ -1,28 +1,95 @@
-[gd_scene load_steps=2 format=3 uid="uid://game_scene"]
+[gd_scene load_steps=3 format=3 uid="uid://gamescene_whitebox"]
 
-[ext_resource type="Script" path="res://scripts/game/GameScene.gd" id="1_game"]
+[ext_resource type="Script" path="res://scripts/game/GameScene.gd" id="1_gamescene"]
+
+[sub_resource type="Curve2D" id="Curve2D_loop"]
 
 [node name="GameScene" type="Node2D"]
-script = ExtResource("1_game")
+script = ExtResource("1_gamescene")
 
-[node name="Path2D" type="Path2D" parent="."]
+[node name="Background" type="ColorRect" parent="."]
+offset_left = -640.0
+offset_top = -360.0
+offset_right = 640.0
+offset_bottom = 360.0
+color = Color(0.0392157, 0.0392157, 0.0392157, 1)
 
-[node name="Player" type="PathFollow2D" parent="Path2D"]
-position = Vector2(300, 0)
-rotates = false
+[node name="Camera2D" type="Camera2D" parent="."]
 
-[node name="PlayerSprite" type="Sprite2D" parent="Path2D/Player"]
-scale = Vector2(0.5, 0.5)
+[node name="PathContainer" type="Node2D" parent="."]
 
-[node name="GridContainer" type="Node2D" parent="."]
+[node name="LoopPath" type="Path2D" parent="PathContainer"]
+curve = SubResource("Curve2D_loop")
+
+[node name="PathVisual" type="Line2D" parent="PathContainer"]
+width = 40.0
+default_color = Color(0.29, 0.29, 0.29, 1)
+
+[node name="GridMarkers" type="Node2D" parent="PathContainer"]
+
+[node name="PlayerContainer" type="Node2D" parent="."]
+
+[node name="Player" type="PathFollow2D" parent="PlayerContainer"]
+
+[node name="PlayerVisual" type="Polygon2D" parent="PlayerContainer/Player"]
+position = Vector2(-8, -8)
+polygon = PackedVector2Array(8, 0, 16, 16, 0, 16)
+color = Color(1, 1, 1, 1)
+
+[node name="TileContainer" type="Node2D" parent="."]
+
+[node name="BossSpawnPoint" type="Marker2D" parent="."]
 
 [node name="UI" type="CanvasLayer" parent="."]
 
+[node name="TopBar" type="HBoxContainer" parent="UI"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 40.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="LoopCount" type="Label" parent="UI/TopBar"]
+layout_mode = 2
+text = "圈数: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BossProgressUI" type="VBoxContainer" parent="UI"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 50.0
+offset_bottom = 80.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="ProgressLabel" type="Label" parent="UI/BossProgressUI"]
+layout_mode = 2
+text = "BOSS 进度"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="UI/BossProgressUI"]
+custom_minimum_size = Vector2(300, 20)
+layout_mode = 2
+size_flags_horizontal = 4
+max_value = 10.0
+value = 0.0
+
 [node name="HandUI" type="Control" parent="UI"]
-layout_mode = 3
-anchors_preset = 9
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 200.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Panel" type="Panel" parent="UI/HandUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/HandUI"]
@@ -32,36 +99,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+alignment = 1
 
 [node name="Label" type="Label" parent="UI/HandUI/VBoxContainer"]
 layout_mode = 2
 text = "手牌"
-
-[node name="CardList" type="VBoxContainer" parent="UI/HandUI/VBoxContainer"]
-layout_mode = 2
-
-[node name="BossProgressUI" type="Control" parent="UI"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 50.0
-grow_horizontal = 2
-
-[node name="ProgressBar" type="ProgressBar" parent="UI/BossProgressUI"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-value = 50.0
-
-[node name="Label" type="Label" parent="UI/BossProgressUI"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -50.0
-offset_right = 50.0
-text = "BOSS觉醒进度"
 horizontal_alignment = 1
+
+[node name="CardList" type="HBoxContainer" parent="UI/HandUI/VBoxContainer"]
+layout_mode = 2
+alignment = 1

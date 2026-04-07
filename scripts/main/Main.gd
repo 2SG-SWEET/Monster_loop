@@ -17,17 +17,22 @@ func _ready():
 	_load_scene(Enums.GamePhase.PREPARATION)
 
 func _on_game_phase_changed(new_phase: Enums.GamePhase) -> void:
+	print("游戏阶段变更: %d" % new_phase)
 	if new_phase == Enums.GamePhase.RESULT:
 		return
 	
 	_load_scene(new_phase)
 
 func _load_scene(phase: Enums.GamePhase) -> void:
+	print("加载场景，阶段: %d" % phase)
+	
 	if _current_scene != null:
+		print("释放当前场景")
 		_current_scene.queue_free()
 		_current_scene = null
 	
 	var scene_path := _get_scene_path_by_phase(phase)
+	print("场景路径: %s" % scene_path)
 	
 	if not ResourceLoader.exists(scene_path):
 		push_warning("Scene not found: %s" % scene_path)
@@ -36,6 +41,7 @@ func _load_scene(phase: Enums.GamePhase) -> void:
 	var scene := load(scene_path) as PackedScene
 	_current_scene = scene.instantiate()
 	_scene_container.add_child(_current_scene)
+	print("场景加载完成")
 
 func _get_scene_path_by_phase(phase: Enums.GamePhase) -> String:
 	match phase:

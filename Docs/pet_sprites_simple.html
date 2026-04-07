@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Loop - 克苏鲁风格宠物精灵图库</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #9400d3;
+            text-shadow: 0 0 20px rgba(148, 0, 211, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #9acd32;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            background: rgba(74, 58, 92, 0.5);
+            border: 1px solid #6b5a7d;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .instructions p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .instructions strong {
+            color: #ff69b4;
+        }
+
+        .pet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .pet-card {
+            background: rgba(45, 31, 61, 0.9);
+            border: 2px solid #4a3a5c;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .pet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .pet-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ff69b4;
+        }
+
+        .pet-en-name {
+            font-size: 0.85rem;
+            color: #9acd32;
+        }
+
+        .pet-rarity {
+            font-size: 1.2rem;
+        }
+
+        .pet-image-wrapper {
+            background: #0a0a1a;
+            border: 3px solid #2d1f3d;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .pet-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .pet-info {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .pet-info p {
+            margin: 6px 0;
+        }
+
+        .pet-info strong {
+            color: #9acd32;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .btn-open {
+            background: linear-gradient(135deg, #9400d3, #4b0082);
+            color: white;
+        }
+
+        .btn-open:hover {
+            background: linear-gradient(135deg, #ba55d3, #9400d3);
+            transform: translateY(-2px);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #32cd32, #228b22);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: linear-gradient(135deg, #3cb371, #2e8b57);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #4a3a5c;
+            color: #6b5a7d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐙 Monster Loop</h1>
+            <p class="subtitle">克苏鲁风格宠物精灵 · 中世纪像素风</p>
+            
+            <div class="instructions">
+                <p><strong>📌 使用说明：</strong></p>
+                <p>1. 点击「打开图片」按钮在新标签页中查看图片</p>
+                <p>2. 在新标签页中右键点击图片 → 选择「图片另存为...」保存到本地</p>
+                <p>3. 保存位置建议：<code>assets/images/pets/</code></p>
+            </div>
+        </header>
+
+        <div class="pet-grid" id="petGrid"></div>
+
+        <footer>
+            <p>文档版本: 1.0 | 设计数量: 8个宠物精灵 | 创建日期: 2026-04-07</p>
+        </footer>
+    </div>
+
+    <script>
+        const BASE_URL = "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image";
+
+        const pets = [
+            {
+                name: "眼魔侍从",
+                enName: "Eye Spawn",
+                rarity: "★☆☆☆☆",
+                rarityText: "普通",
+                element: "精神/感知",
+                role: "辅助型",
+                filename: "Pet_EyeSpawn_Idle.png",
+                prompt: "pixel art, 32x32 pixels, cute but eerie floating eyeball creature, dark purple flesh ball with vein textures, one giant central eye with yellow-green iris and vertical pupil, 3-4 small secondary eyes around, 3 tiny tentacles hanging from bottom with small suckers, wearing tattered monk hood on top, rusty small bell around neck, ancient runes faintly visible in pupil, medieval manuscript illustration style, lovecraftian, darkest dungeon style, dark color palette, thick black outlines"
+            },
+            {
+                name: "触手猫",
+                enName: "Tentacle Mew",
+                rarity: "★★☆☆☆",
+                rarityText: "常见",
+                element: "敏捷/暗影",
+                role: "刺客型",
+                filename: "Pet_TentacleMew_Idle.png",
+                prompt: "pixel art, 32x32 pixels, cute but eerie black cat with unnatural oily fur, tail is a complete tentacle with eye pattern at end, 2-3 small tentacles on back that can stand up, vertical pupil eyes with faint phosphorescent glow, slightly transparent claws showing internal blood vessels, faded red ribbon around neck, small rusty silver bells on ears, branded heretic mark on body, medieval manuscript illustration style, lovecraftian, darkest dungeon style, dark color palette, thick black outlines"
+            },
+            {
+                name: "脓液史莱姆",
+                enName: "Ichor Slime",
+                rarity: "★☆☆☆☆",
+                rarityText: "普通",
+                element: "毒/腐蚀",
+                role: "坦克型",
+                filename: "Pet_IchorSlime_Idle.png",
+                prompt: "pixel art, 32x32 pixels, irregular blob shape, yellow-green translucent slime with bubbles inside, various debris floating inside (bones, teeth, trinkets), bubbles constantly forming and bursting on surface, occasional faint human face silhouette appearing and dissolving, fake feet made of solidified slime at bottom, rusty knight badge inside, half-digested parchment scroll, small broken chain link, medieval manuscript illustration style, lovecraftian, darkest dungeon style, dark color palette, thick black outlines"
+            },
+            {
+                name: "深渊幼犬",
+                enName: "Abyss Pup",
+                rarity: "★★★☆☆",
+                rarityText: "稀有",
+                element: "黑暗/恐惧",
+                role: "战士型",
+                filename: "Pet_AbyssPup_Idle.png",
+                prompt: "pixel art, 32x32 pixels, scrawny black hound, three fused dog heads with only one conscious, two dead heads with hollow eyes and slightly open mouths, six extra legs on body sides, tail splits into two tentacles, glowing crack on chest like third eye, broken iron collar around neck, holy water burn scars on body, inquisition tag hanging from one ear, medieval manuscript illustration style, lovecraftian, darkest dungeon style, dark color palette, thick black outlines"
+            },
+            {
+                name: "信使乌鸦",
+                enName: "Messenger Corvus",
+                rarity: "★★☆☆☆",
+                rarityText: "常见",
+                element: "风/预知",
+                role: "支援型",
+                filename: "Pet_MessengerCorvus_Idle.png",
+                prompt: "pixel art, 32x32 pixels, slightly larger than normal crow with unhealthy sheen on feathers, three eyes - third eye on forehead always open, small tentacle-like feathers on wing edges, abnormally long and curved claws like human fingers, tiny runes engraved on beak, small parchment scroll tied to leg, messenger whistle around neck, dried herbs mixed in feathers, medieval manuscript illustration style, lovecraftian, darkest dungeon style, dark color palette, thick black outlines"
+            },
+            {
+                name: "虚空幼虫",
+                enName: "Void Larva",
+                rarity: "★★★★☆",
+                rarityText: "史诗",
+                element: "虚空/吞噬",
+                role: "法师型",
+                filename: "Pet_VoidLarva_Idle.png",
+                prompt: "pixel art, 32x32 pixels, large caterpillar shape, translucent pale purple body with starry void inside, segmented body with false eye patterns on each segment, giant mouthparts with spiral teeth on head, small void tentacles on body sides, faint prayer bandages wrapped around body, tiny crown of thorns on head, corroded holy emblem embedded on one segment, medieval manuscript illustration style, lovecraftian, darkest dungeon style, dark color palette, thick black outlines"
+            },
+            {
+                name: "溺亡者之握",
+                enName: "Drowned Grasp",
+                rarity: "★★★☆☆",
+                rarityText: "稀有",
+                element: "水/亡灵",
+                role: "控制型",
+                filename: "Pet_DrownedGrasp_Idle.png",
+                prompt: "pixel art, 32x32 pixels, giant swollen pale translucent drowned hand crawling on fingers, tiny moving human face in center of palm, constantly dripping black water/slime, broken wrist showing internal bones and tentacles, rusty wedding ring on ring finger, water-soaked hemp rope wrapped around wrist, ancient divination symbols on palm lines, medieval manuscript illustration style, lovecraftian, darkest dungeon style, dark color palette, thick black outlines"
+            },
+            {
+                name: "古神之种",
+                enName: "Old God Sprout",
+                rarity: "★★★★★",
+                rarityText: "传说",
+                element: "全属性/混沌",
+                role: "全能型",
+                filename: "Pet_OldGodSprout_Idle.png",
+                prompt: "pixel art, 32x32 pixels, small potted plant with eerie details, flower pot is tiny skull of unknown material, twisted humanoid plant stem with tiny limbs, flower is closed eyeball that slowly blinks, roots extending from bottom of pot wriggling like tentacles, slight air distortion around it, alchemy symbols on skull pot, gold thread wrapped around stem, small holy bone fragments in soil, medieval manuscript illustration style, lovecraftian, darkest dungeon style, dark color palette, thick black outlines"
+            }
+        ];
+
+        function getImageUrl(prompt) {
+            const encodedPrompt = encodeURIComponent(prompt);
+            return `${BASE_URL}?prompt=${encodedPrompt}&image_size=square_hd`;
+        }
+
+        function openImage(pet) {
+            const imageUrl = getImageUrl(pet.prompt);
+            window.open(imageUrl, '_blank');
+        }
+
+        function createPetCard(pet, index) {
+            const imageUrl = getImageUrl(pet.prompt);
+            
+            return `
+                <div class="pet-card">
+                    <div class="pet-header">
+                        <div>
+                            <div class="pet-name">${pet.name}</div>
+                            <div class="pet-en-name">${pet.enName}</div>
+                        </div>
+                        <div class="pet-rarity" title="${pet.rarityText}">${pet.rarity}</div>
+                    </div>
+                    <div class="pet-image-wrapper">
+                        <img class="pet-image" src="${imageUrl}" alt="${pet.name}" 
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect fill=%22%230a0a1a%22 width=%22200%22 height=%22200%22/><text x=%22100%22 y=%22100%22 text-anchor=%22middle%22 fill=%22%239400d3%22 font-size=%2214%22>点击打开图片</text></svg>'">
+                    </div>
+                    <div class="pet-info">
+                        <p><strong>属性:</strong> ${pet.element}</p>
+                        <p><strong>定位:</strong> ${pet.role}</p>
+                        <p><strong>稀有度:</strong> ${pet.rarityText}</p>
+                        <p><strong>文件名:</strong> ${pet.filename}</p>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-open" onclick="openImage(pets[${index}])">
+                            🔗 打开图片
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPets() {
+            const grid = document.getElementById('petGrid');
+            grid.innerHTML = pets.map((pet, index) => createPetCard(pet, index)).join('');
+        }
+
+        window.onload = renderPets;
+    </script>
+</body>
+</html>

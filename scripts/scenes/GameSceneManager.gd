@@ -4,6 +4,7 @@ extends Node
 signal loop_completed(loop_count: int)
 signal all_tiles_consumed
 signal boss_spawn_requested
+signal tile_placed(module_id: String, grid_index: int)
 
 @export var path_radius: float = GameConstants.PATH_RADIUS
 @export var grid_count: int = GameConstants.MAX_GRID_SLOTS
@@ -18,12 +19,16 @@ var _loop_path: Path2D
 var _player_follow: PathFollow2D
 var _tile_container: Node2D
 var _boss_spawn_point: Marker2D
+var _boss_progress_manager: BossProgressManager
 
 func initialize(path: Path2D, follow: PathFollow2D, container: Node2D, spawn_point: Marker2D) -> void:
 	_loop_path = path
 	_player_follow = follow
 	_tile_container = container
 	_boss_spawn_point = spawn_point
+	
+	_boss_progress_manager = BossProgressManager.new()
+	_boss_progress_manager.initialize()
 	
 	_initialize_grid_slots()
 	_connect_event_bus()
@@ -156,7 +161,8 @@ func _on_tile_placed(module_id: String, grid_index: int) -> void:
 	
 	slot.set_module(module_instance)
 	
-	BossProgressManager.add_total_charge(module_instance.get_charge())
+	_boss_progress_manager.add_total_charge(module_instance.get_charge())
+	tile_placed.emit(module_id, grid_index)
 
 func _on_tile_consumed(module_id: String, grid_index: int, remaining_charge: int) -> void:
 	if grid_index < 0 or grid_index >= grid_slots.size():

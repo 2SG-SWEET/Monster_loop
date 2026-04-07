@@ -78,8 +78,8 @@ static func get_unlocked_cards(unlocked_modules: Array) -> Array:
 		initialize()
 	
 	var result: Array = []
-	for module_id in unlocked_modules:
-		var card := _cards.get(module_id, null)
+	for module_id: String in unlocked_modules:
+		var card: TileCardData = _cards.get(module_id, null)
 		if card != null:
 			result.append(card)
 	return result

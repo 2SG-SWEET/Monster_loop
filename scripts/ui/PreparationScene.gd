@@ -8,10 +8,11 @@ extends Control
 var _selected_monsters: Array = []
 var _selected_deck: Array = []
 
-func _ready():
+func _ready() -> void:
 	_load_available_monsters()
 	_load_available_modules()
 	_setup_deck_defaults()
+	_start_button.pressed.connect(_on_start_button_pressed)
 
 func _load_available_monsters() -> void:
 	for child in _monster_list.get_children():
@@ -46,7 +47,7 @@ func _load_available_modules() -> void:
 	for child in _deck_list.get_children():
 		child.queue_free()
 	
-	var unlocked := SaveManager.get_data().get("unlocked_modules", [])
+	var unlocked: Array = SaveManager.get_data().get("unlocked_modules", [])
 	
 	var modules := {
 		"light_forest": {"name": "微光森林", "charge": 3},
@@ -54,7 +55,7 @@ func _load_available_modules() -> void:
 		"lava_crack": {"name": "熔岩裂隙", "charge": 5}
 	}
 	
-	for module_id in unlocked:
+	for module_id: String in unlocked:
 		var info: Dictionary = modules.get(module_id, {})
 		var hbox := HBoxContainer.new()
 		
@@ -104,7 +105,10 @@ func _on_deck_count_changed(value: float, module_id: String) -> void:
 	_selected_deck.append({"module_id": module_id, "count": int(value)})
 
 func _on_start_button_pressed() -> void:
+	print("开始游戏按钮被点击")
+	
 	if _selected_monsters.is_empty():
+		print("错误：未选择任何怪物")
 		return
 	
 	var total_cards := 0
@@ -112,7 +116,11 @@ func _on_start_button_pressed() -> void:
 		total_cards += item.count
 	
 	if total_cards == 0:
+		print("错误：卡组中没有卡片")
 		return
+	
+	print("选择的怪物: %d" % _selected_monsters.size())
+	print("卡组卡片总数: %d" % total_cards)
 	
 	SaveManager.get_data()["selected_monsters"] = _selected_monsters
 	
@@ -123,4 +131,6 @@ func _on_start_button_pressed() -> void:
 	SaveManager.set_deck_cards(deck_cards)
 	SaveManager.save_data()
 	
+	print("正在切换到 EXPLORATION 阶段...")
 	GameManager.set_phase(Enums.GamePhase.EXPLORATION)
+	print("阶段切换完成")

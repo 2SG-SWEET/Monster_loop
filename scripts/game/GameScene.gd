@@ -1,242 +1,214 @@
 class_name GameScene
 extends Node2D
 
-@export var path_radius: float = GameConstants.PATH_RADIUS
-@export var move_speed: float = GameConstants.MOVE_SPEED
-@export var grid_slots_count: int = GameConstants.MAX_GRID_SLOTS
+@export var grid_width: int = 6
+@export var grid_height: int = 6
+@export var cell_size: float = 80.0
+@export var move_speed: float = 150.0
 
-@onready var _path: Path2D = $Path2D
-@onready var _player: PathFollow2D = $Path2D/Player
-@onready var _grid_container: Node2D = $GridContainer
-@onready var _hand_ui: Control = $UI/HandUI
-@onready var _progress_ui: Control = $UI/BossProgressUI
-@onready var _progress_bar: ProgressBar = $UI/BossProgressUI/ProgressBar if has_node("UI/BossProgressUI/ProgressBar") else null
-@onready var _loop_label: Label = $UI/TopBar/LoopCount if has_node("UI/TopBar/LoopCount") else null
+var grid_slots_count: int = 36
 
-var _game_scene_manager: GameSceneManager
-var _tile_placement_manager: TilePlacementManager
-var _boss_progress_manager: BossProgressManager
-var _grid_slots: Array = []
+@onready var _path: Path2D = $PathContainer/LoopPath
+@onready var _path_visual: Line2D = $PathContainer/PathVisual
+@onready var _player: PathFollow2D = $PlayerContainer/Player
+@onready var _grid_markers: Node2D = $PathContainer/GridMarkers
+@onready var _tile_container: Node2D = $TileContainer
+@onready var _loop_label: Label = $UI/TopBar/LoopCount
+@onready var _progress_bar: ProgressBar = $UI/BossProgressUI/ProgressBar
+
+var _grid_slots: Array[Marker2D] = []
 var _placed_modules: Dictionary = {}
 var _is_moving: bool = true
+var _current_loop: int = 0
+var _boss_progress: int = 0
+var _total_charge: int = 0
 
-func _ready():
+func _ready() -> void:
 	_setup_path()
-	_setup_managers()
 	_setup_grid_slots()
-	_setup_hand()
-	_connect_signals()
-	
-	GameManager.start_new_game()
-	_game_scene_manager.start_game()
+	_setup_initial_state()
+	print("游戏场景初始化完成")
 
 func _setup_path() -> void:
 	var curve := Curve2D.new()
-	var segments := 60
 	
-	for i in range(segments + 1):
-		var angle := TAU * float(i) / float(segments)
-		var x := cos(angle) * path_radius
-		var y := sin(angle) * path_radius
+	# 计算矩形边界
+	var half_width := (grid_width * cell_size) / 2.0
+	var half_height := (grid_height * cell_size) / 2.0
+	
+	# 创建矩形循环路径 (顺时针: 左上 -> 右上 -> 右下 -> 左下 -> 左上)
+	# 上边 (从左到右)
+	for i in range(grid_width):
+		var x := -half_width + i * cell_size
+		var y := -half_height
+		curve.add_point(Vector2(x, y))
+	
+	# 右边 (从上到下)
+	for i in range(grid_height):
+		var x := half_width
+		var y := -half_height + i * cell_size
+		curve.add_point(Vector2(x, y))
+	
+	# 下边 (从右到左)
+	for i in range(grid_width):
+		var x := half_width - i * cell_size
+		var y := half_height
+		curve.add_point(Vector2(x, y))
+	
+	# 左边 (从下到上)
+	for i in range(grid_height):
+		var x := -half_width
+		var y := half_height - i * cell_size
 		curve.add_point(Vector2(x, y))
 	
 	_path.curve = curve
-
-func _setup_managers() -> void:
-	_game_scene_manager = GameSceneManager.new()
-	_game_scene_manager.initialize(_path, _player, _grid_container, null)
 	
-	_tile_placement_manager = TilePlacementManager.new()
-	_tile_placement_manager.initialize(_game_scene_manager, null)
-	
-	_boss_progress_manager = BossProgressManager.new()
-	_boss_progress_manager.initialize()
-	
-	_boss_progress_manager.progress_updated.connect(_on_progress_updated)
-	_boss_progress_manager.progress_completed.connect(_on_progress_completed)
+	# 设置路径可视化
+	var points: PackedVector2Array = []
+	for i in range(curve.point_count):
+		points.append(curve.get_point_position(i))
+	_path_visual.points = points
 
 func _setup_grid_slots() -> void:
-	for i in range(grid_slots_count):
-		var angle := TAU * float(i) / float(grid_slots_count)
-		var pos := Vector2(cos(angle) * path_radius, sin(angle) * path_radius)
-		
-		var slot := _create_grid_slot(i, pos)
-		_grid_container.add_child(slot)
-		_grid_slots.append(slot)
+	var half_width := (grid_width * cell_size) / 2.0
+	var half_height := (grid_height * cell_size) / 2.0
+	
+	var slot_index := 0
+	
+	# 上边 (从左到右)
+	for i in range(grid_width):
+		var x := -half_width + i * cell_size
+		var y := -half_height
+		_create_grid_slot(slot_index, Vector2(x, y))
+		slot_index += 1
+	
+	# 右边 (从上到下)
+	for i in range(grid_height):
+		var x := half_width
+		var y := -half_height + i * cell_size
+		_create_grid_slot(slot_index, Vector2(x, y))
+		slot_index += 1
+	
+	# 下边 (从右到左)
+	for i in range(grid_width):
+		var x := half_width - i * cell_size
+		var y := half_height
+		_create_grid_slot(slot_index, Vector2(x, y))
+		slot_index += 1
+	
+	# 左边 (从下到上)
+	for i in range(grid_height):
+		var x := -half_width
+		var y := half_height - i * cell_size
+		_create_grid_slot(slot_index, Vector2(x, y))
+		slot_index += 1
 
-func _create_grid_slot(index: int, position: Vector2) -> Area2D:
-	var slot := Area2D.new()
-	slot.position = position
-	slot.set_meta("slot_index", index)
+func _create_grid_slot(index: int, pos: Vector2) -> void:
+	var marker := Marker2D.new()
+	marker.position = pos
+	marker.name = "GridSlot_%d" % index
 	
-	var collision := CollisionShape2D.new()
-	var shape := CircleShape2D.new()
-	shape.radius = 30.0
-	collision.shape = shape
-	slot.add_child(collision)
+	# 添加可视化圆环
+	var visual := Line2D.new()
+	visual.name = "Visual"
+	visual.width = 2.0
+	visual.default_color = Color(1, 1, 1, 0.5)
 	
-	slot.input_event.connect(_on_slot_input_event.bind(slot))
+	# 创建圆形
+	var circle_points: PackedVector2Array = []
+	for j in range(16):
+		var circle_angle := TAU * float(j) / 16.0
+		circle_points.append(Vector2(cos(circle_angle) * 15, sin(circle_angle) * 15))
+	circle_points.append(circle_points[0])
+	visual.points = circle_points
 	
-	return slot
+	marker.add_child(visual)
+	_grid_markers.add_child(marker)
+	_grid_slots.append(marker)
+	
+	print("创建格子 %d 在位置 %s" % [index, str(pos)])
 
-func _setup_hand() -> void:
-	var deck_cards := SaveManager.get_deck_cards()
-	
-	if deck_cards.is_empty():
-		deck_cards = [
-			{"module_id": "light_forest", "count": 2},
-			{"module_id": "abandoned_lab", "count": 1},
-			{"module_id": "lava_crack", "count": 2}
-		]
-		SaveManager.set_deck_cards(deck_cards)
-	
-	var hand_cards: Array = []
-	var total_charge := 0
-	
-	for card in deck_cards:
-		var module_id: String = card.get("module_id", "")
-		var count: int = card.get("count", 1)
-		var card_data := CardLibrary.get_card(module_id)
-		if card_data != null:
-			total_charge += card_data.initial_charge * count
-		for i in range(count):
-			hand_cards.append(module_id)
-	
-	HandUIManager.set_hand_cards(hand_cards)
-	_boss_progress_manager.set_total_charge(total_charge)
-	GameManager.set_total_charge(total_charge)
-	
-	_update_hand_ui()
-
-func _connect_signals() -> void:
-	EventBus.tile_placed.connect(_on_tile_placed)
-	EventBus.tile_consumed.connect(_on_tile_consumed)
-	EventBus.tile_disappeared.connect(_on_tile_disappeared)
-	EventBus.loop_completed.connect(_on_loop_completed)
-	EventBus.combat_triggered.connect(_on_combat_triggered)
-	EventBus.combat_ended.connect(_on_combat_ended)
-	EventBus.boss_spawned.connect(_on_boss_spawned)
-	
-	HandUIManager.card_selected.connect(_on_card_selected)
-	HandUIManager.hand_updated.connect(_on_hand_updated)
-	
-	_game_scene_manager.tile_placed.connect(_on_manager_tile_placed)
+func _setup_initial_state() -> void:
+	_current_loop = 0
+	_boss_progress = 0
+	_total_charge = 10
+	_update_ui()
 
 func _process(delta: float) -> void:
 	if not _is_moving:
 		return
 	
-	_game_scene_manager.update(delta)
-	
-	if _player and _path and _path.curve:
-		_player.progress = _game_scene_manager._player_follow.progress if _game_scene_manager._player_follow else _player.progress + move_speed * delta
-
-func _on_slot_input_event(_viewport: Node, event: InputEvent, _shape_idx: int, slot: Area2D) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var index: int = slot.get_meta("slot_index", -1)
-		if index >= 0 and not _placed_modules.has(index):
-			_place_selected_module(index)
-
-func _place_selected_module(grid_index: int) -> void:
-	var selected_id := HandUIManager.get_card_at(HandUIManager.get_selected_index())
-	if selected_id == "":
-		return
-	
-	var module := TileModuleFactory.create_module(selected_id)
-	if module == null:
-		return
-	
-	var slot: Area2D = _grid_slots[grid_index]
-	module.position = slot.position
-	module.initialize(module.module_data, grid_index)
-	
-	add_child(module)
-	_placed_modules[grid_index] = module
-	slot.set_meta("placed_module", module)
-	
-	var card_data := CardLibrary.get_card(selected_id)
-	if card_data != null:
-		_boss_progress_manager.add_total_charge(card_data.initial_charge)
-	
-	EventBus.tile_placed.emit(selected_id, grid_index)
-	HandUIManager.remove_card(HandUIManager.get_selected_index())
-	_update_hand_ui()
-
-func _on_card_selected(card_index: int) -> void:
-	_tile_placement_manager._on_card_selected(card_index)
-
-func _on_hand_updated(_cards: Array) -> void:
-	_update_hand_ui()
-
-func _update_hand_ui() -> void:
-	if _hand_ui == null:
-		return
-	
-	var card_list: VBoxContainer = _hand_ui.get_node_or_null("VBoxContainer/CardList")
-	if card_list == null:
-		return
-	
-	for child in card_list.get_children():
-		child.queue_free()
-	
-	var cards := HandUIManager.get_hand_cards()
-	for i in range(cards.size()):
-		var module_id: String = cards[i]
-		var card_data := CardLibrary.get_card(module_id)
+	# 玩家沿路径移动
+	if _path and _path.curve:
+		var path_length := _path.curve.get_baked_length()
+		var move_distance := move_speed * delta
+		_player.progress += move_distance
 		
-		var btn := Button.new()
-		if card_data != null:
-			btn.text = card_data.display_name
-		else:
-			btn.text = module_id
-		
-		btn.pressed.connect(_on_hand_card_pressed.bind(i))
-		card_list.add_child(btn)
+		# 检查是否完成一圈
+		if _player.progress >= path_length:
+			_player.progress = 0.0
+			_on_loop_completed()
 
-func _on_hand_card_pressed(index: int) -> void:
-	HandUIManager.select_card(index)
+func _on_loop_completed() -> void:
+	_current_loop += 1
+	print("完成第 %d 圈" % _current_loop)
+	_update_ui()
 
-func _on_tile_placed(module_id: String, grid_index: int) -> void:
-	pass
-
-func _on_manager_tile_placed(module_id: String, grid_index: int) -> void:
-	pass
-
-func _on_tile_consumed(module_id: String, grid_index: int, remaining_charge: int) -> void:
-	_boss_progress_manager.update_progress(1)
-	
-	if remaining_charge <= 0:
-		_on_tile_disappeared(module_id, grid_index)
-
-func _on_tile_disappeared(_module_id: String, grid_index: int) -> void:
-	if _placed_modules.has(grid_index):
-		_placed_modules.erase(grid_index)
-		
-		if grid_index < _grid_slots.size():
-			var slot: Area2D = _grid_slots[grid_index]
-			slot.remove_meta("placed_module")
-
-func _on_loop_completed(loop_count: int) -> void:
+func _update_ui() -> void:
 	if _loop_label:
-		_loop_label.text = "圈数: %d" % loop_count
-
-func _on_progress_updated(current: int, total: int) -> void:
-	if _progress_bar:
-		_progress_bar.max_value = total
-		_progress_bar.value = current
+		_loop_label.text = "圈数: %d" % _current_loop
 	
-	EventBus.boss_progress_updated.emit(current, total)
+	if _progress_bar:
+		_progress_bar.max_value = _total_charge
+		_progress_bar.value = _boss_progress
 
-func _on_progress_completed() -> void:
-	_is_moving = false
+func place_module(module_id: String, grid_index: int) -> void:
+	if grid_index < 0 or grid_index >= _grid_slots.size():
+		return
+	
+	if _placed_modules.has(grid_index):
+		return
+	
+	var marker := _grid_slots[grid_index]
+	
+	# 创建模块可视化 (白模)
+	var module_visual := Polygon2D.new()
+	module_visual.name = "Module_%s" % module_id
+	
+	# 根据模块类型设置不同形状和颜色
+	match module_id:
+		"light_forest":
+			module_visual.polygon = PackedVector2Array([
+				Vector2(0, -12), Vector2(10, 8), Vector2(-10, 8)
+			])
+			module_visual.color = Color(0.176, 0.314, 0.086, 1)
+		"abandoned_lab":
+			module_visual.polygon = PackedVector2Array([
+				Vector2(-12, -12), Vector2(12, -12), Vector2(12, 12), Vector2(-12, 12)
+			])
+			module_visual.color = Color(0.29, 0.333, 0.408, 1)
+		"lava_crack":
+			module_visual.polygon = PackedVector2Array([
+				Vector2(0, -10), Vector2(8, 0), Vector2(0, 10), Vector2(-8, 0)
+			])
+			module_visual.color = Color(0.773, 0.188, 0.188, 1)
+		_:
+			module_visual.polygon = PackedVector2Array([
+				Vector2(-10, -10), Vector2(10, -10), Vector2(10, 10), Vector2(-10, 10)
+			])
+			module_visual.color = Color(0.5, 0.5, 0.5, 1)
+	
+	module_visual.position = marker.position
+	_tile_container.add_child(module_visual)
+	
+	_placed_modules[grid_index] = module_visual
+	print("放置模块 %s 在格子 %d" % [module_id, grid_index])
 
-func _on_combat_triggered(_module_id: String, _enemy_data: Dictionary) -> void:
-	_is_moving = false
-	_game_scene_manager.pause_game()
+func get_grid_index_at_position(pos: Vector2) -> int:
+	for i in range(_grid_slots.size()):
+		if _grid_slots[i].position.distance_to(pos) < 30.0:
+			return i
+	return -1
 
-func _on_combat_ended(_result: Dictionary) -> void:
-	_is_moving = true
-	_game_scene_manager.resume_game()
-
-func _on_boss_spawned(_boss_data: Dictionary) -> void:
-	_is_moving = false
+func is_slot_occupied(grid_index: int) -> bool:
+	return _placed_modules.has(grid_index)

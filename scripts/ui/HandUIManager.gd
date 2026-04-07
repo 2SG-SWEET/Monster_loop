@@ -16,7 +16,7 @@ static func get_instance() -> HandUIManager:
 static func set_hand_cards(cards: Array) -> void:
 	_hand_cards = cards.duplicate()
 	_selected_index = -1
-	_instance.hand_updated.emit(_hand_cards)
+	get_instance().hand_updated.emit(_hand_cards)
 
 static func get_hand_cards() -> Array:
 	return _hand_cards.duplicate()
@@ -29,7 +29,7 @@ static func get_card_at(index: int) -> String:
 static func select_card(index: int) -> void:
 	if index >= 0 and index < _hand_cards.size():
 		_selected_index = index
-		_instance.card_selected.emit(index)
+		get_instance().card_selected.emit(index)
 
 static func get_selected_index() -> int:
 	return _selected_index
@@ -41,7 +41,7 @@ static func remove_card(index: int) -> bool:
 			_selected_index = -1
 		elif _selected_index > index:
 			_selected_index -= 1
-		_instance.hand_updated.emit(_hand_cards)
+		get_instance().hand_updated.emit(_hand_cards)
 		return true
 	return false
 
@@ -60,4 +60,4 @@ static func is_empty() -> bool:
 static func clear_hand() -> void:
 	_hand_cards.clear()
 	_selected_index = -1
-	_instance.hand_updated.emit(_hand_cards)
+	get_instance().hand_updated.emit(_hand_cards)

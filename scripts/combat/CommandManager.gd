@@ -16,7 +16,7 @@ func start_command_phase(player_units: Array) -> void:
 			_pending_units.append(unit)
 
 func set_command(unit_uuid: String, command: CombatCommand) -> bool:
-	if not _is_unit_pending(unit_uuid):
+	if not is_unit_pending(unit_uuid):
 		return false
 	
 	if not command.is_valid:

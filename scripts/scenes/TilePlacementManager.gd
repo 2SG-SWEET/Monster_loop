@@ -18,7 +18,7 @@ func initialize(manager: GameSceneManager, overlay: Control = null) -> void:
 	_connect_hand_ui()
 
 func _connect_hand_ui() -> void:
-	HandUIManager.card_selected.connect(_on_card_selected)
+	HandUIManager.get_instance().card_selected.connect(_on_card_selected)
 
 func set_hand_cards(cards: Array) -> void:
 	hand_cards = cards
