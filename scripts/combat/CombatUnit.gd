@@ -154,7 +154,7 @@ func reset_turn_state() -> void:
 	_tick_status_effects()
 
 func _tick_status_effects() -> void:
-	var expired: Array[String] = []
+	var expired: Array = []
 	
 	for effect_name in status_effects:
 		var effect: Dictionary = status_effects[effect_name]

@@ -11,8 +11,8 @@ enum CardRarity { COMMON, RARE, EPIC, LEGENDARY }
 @export var icon: Texture2D
 @export var rarity: CardRarity = CardRarity.COMMON
 @export var initial_charge: int = 3
-@export var element_types: Array[Enums.Element] = []
-@export var special_effects: Array[String] = []
+@export var element_types: Array = []
+@export var special_effects: Array = []
 @export var unlock_condition: Dictionary = {}
 
 func get_summary() -> String:

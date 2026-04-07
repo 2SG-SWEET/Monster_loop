@@ -168,7 +168,7 @@ static func get_monster_by_element(element: Enums.Element) -> MonsterData:
 	if not _initialized:
 		initialize()
 	
-	var candidates: Array[MonsterData] = []
+	var candidates: Array = []
 	for monster in _monsters.values():
 		if monster.element == element:
 			candidates.append(monster)

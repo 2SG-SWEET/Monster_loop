@@ -5,8 +5,8 @@ extends Resource
 @export var display_name: String = ""
 @export var description: String = ""
 @export var initial_charge: int = 3
-@export var spawn_elements: Array[Enums.Element] = []
-@export var spawn_weights: Array[int] = []
+@export var spawn_elements: Array = []
+@export var spawn_weights: Array = []
 @export var special_effects: Dictionary = {}
 @export var on_disappear_rewards: Dictionary = {}
 
@@ -15,21 +15,21 @@ func get_random_spawn_element() -> Enums.Element:
 		return Enums.Element.FIRE
 	
 	if spawn_weights.is_empty() or spawn_weights.size() != spawn_elements.size():
-		return spawn_elements[randi() % spawn_elements.size()]
+		return spawn_elements[randi() % spawn_elements.size()] as Enums.Element
 	
-	var total_weight := 0
+	var total_weight: int = 0
 	for w in spawn_weights:
 		total_weight += w
 	
 	var roll := randi() % total_weight
-	var current := 0
+	var current: int = 0
 	
 	for i in range(spawn_elements.size()):
-		current += spawn_weights[i]
+		current += spawn_weights[i] as int
 		if roll < current:
-			return spawn_elements[i]
+			return spawn_elements[i] as Enums.Element
 	
-	return spawn_elements[0]
+	return spawn_elements[0] as Enums.Element
 
 func to_dictionary() -> Dictionary:
 	return {
