@@ -21,27 +21,30 @@ func _load_available_monsters() -> void:
 	var monsters := SaveManager.get_player_monsters()
 	
 	if monsters.is_empty():
-		monsters = [
-			{
-				"uuid": "starter_1",
-				"display_name": "初始火精灵",
-				"element": Enums.Element.FIRE,
-				"level": 5,
-				"base_hp": 100,
-				"base_atk": 30,
-				"base_def": 20,
-				"base_spd": 20,
-				"skills": ["tackle", "fireball"]
-			}
-		]
+		var starter := MonsterDatabase.create_instance("abyss_pup", 5)
+		starter.uuid = "starter_1"
+		starter.is_player = true
+		monsters = [starter]
 		for m in monsters:
 			SaveManager.add_monster(m)
 	
 	for monster in monsters:
+		var hbox := HBoxContainer.new()
+		
+		if monster.get("sprite_path", "") != "" and ResourceLoader.exists(monster.sprite_path):
+			var texture_rect := TextureRect.new()
+			texture_rect.texture = load(monster.sprite_path)
+			texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+			texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			texture_rect.custom_minimum_size = Vector2(32, 32)
+			hbox.add_child(texture_rect)
+		
 		var checkbox := CheckBox.new()
 		checkbox.text = "%s Lv.%d" % [monster.display_name, monster.level]
 		checkbox.toggled.connect(_on_monster_toggled.bind(monster, checkbox))
-		_monster_list.add_child(checkbox)
+		hbox.add_child(checkbox)
+		
+		_monster_list.add_child(hbox)
 
 func _load_available_modules() -> void:
 	for child in _deck_list.get_children():

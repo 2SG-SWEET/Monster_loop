@@ -18,8 +18,8 @@ var base_spd: int = 20
 var current_hp: int = 100
 var max_hp: int = 100
 
-var skills: Array[String] = []
-var traits: Array[String] = []
+var skills: Array = []
+var traits: Array = []
 
 var state: UnitState = UnitState.ACTIVE
 var status_effects: Dictionary = {}
@@ -30,6 +30,8 @@ var weaken_turns: int = 0
 var atk_modifier: float = 1.0
 var def_modifier: float = 1.0
 var spd_modifier: float = 1.0
+var sprite_path: String = ""
+var rarity: int = 0
 
 func _init(data: Dictionary = {}) -> void:
 	if data.is_empty():
@@ -50,6 +52,8 @@ func _init(data: Dictionary = {}) -> void:
 	
 	skills = data.get("skills", [])
 	traits = data.get("traits", [])
+	sprite_path = data.get("sprite_path", "")
+	rarity = data.get("rarity", 0)
 	
 	if data.get("is_player", false):
 		unit_type = UnitType.PLAYER

@@ -10,9 +10,11 @@ extends Resource
 @export var base_atk: int = 30
 @export var base_def: int = 20
 @export var base_spd: int = 20
-@export var skills: Array[String] = []
-@export var traits: Array[String] = []
+@export var skills: Array = []
+@export var traits: Array = []
 @export var capture_rate: float = 0.4
+@export var sprite_path: String = ""
+@export var rarity: int = 0
 
 func get_scaled_stats(level_offset: int = 0) -> Dictionary:
 	var actual_level := level + level_offset
@@ -36,7 +38,9 @@ func to_dictionary() -> Dictionary:
 		"base_spd": base_spd,
 		"skills": skills,
 		"traits": traits,
-		"capture_rate": capture_rate
+		"capture_rate": capture_rate,
+		"sprite_path": sprite_path,
+		"rarity": rarity
 	}
 
 static func from_dictionary(data: Dictionary) -> MonsterData:
@@ -53,4 +57,6 @@ static func from_dictionary(data: Dictionary) -> MonsterData:
 	res.skills = data.get("skills", [])
 	res.traits = data.get("traits", [])
 	res.capture_rate = data.get("capture_rate", 0.4)
+	res.sprite_path = data.get("sprite_path", "")
+	res.rarity = data.get("rarity", 0)
 	return res

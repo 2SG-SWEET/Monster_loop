@@ -105,18 +105,34 @@ func _clear_container(container: Node) -> void:
 func _create_unit_display(unit: CombatUnit) -> Control:
 	var vbox := VBoxContainer.new()
 	
+	if unit.sprite_path != "" and ResourceLoader.exists(unit.sprite_path):
+		var texture_rect := TextureRect.new()
+		texture_rect.texture = load(unit.sprite_path)
+		texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		texture_rect.custom_minimum_size = Vector2(64, 64)
+		vbox.add_child(texture_rect)
+	
 	var name_label := Label.new()
 	name_label.text = unit.display_name
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(name_label)
+	
+	var level_label := Label.new()
+	level_label.text = "Lv.%d" % unit.level
+	level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	level_label.add_theme_color_override("font_color", Color.YELLOW)
+	vbox.add_child(level_label)
 	
 	var hp_label := Label.new()
 	hp_label.text = "HP: %d/%d" % [unit.current_hp, unit.max_hp]
+	hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(hp_label)
 	
 	var hp_bar := ProgressBar.new()
 	hp_bar.max_value = unit.max_hp
 	hp_bar.value = unit.current_hp
-	hp_bar.custom_minimum_size = Vector2(100, 10)
+	hp_bar.custom_minimum_size = Vector2(80, 8)
 	vbox.add_child(hp_bar)
 	
 	if unit.is_fainted():
@@ -145,7 +161,7 @@ func _show_unit_actions(unit: CombatUnit) -> void:
 	
 	if not unit.skills.is_empty():
 		for i in range(mini(2, unit.skills.size())):
-			var skill_id := unit.skills[i]
+			var skill_id: String = unit.skills[i]
 			var skill := SkillDatabase.get_skill(skill_id)
 			if skill:
 				var skill_btn := Button.new()

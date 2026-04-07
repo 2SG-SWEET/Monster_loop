@@ -149,7 +149,7 @@ func _execute_skill(cmd: CombatCommand, action_data: Dictionary) -> void:
 		_execute_attack(cmd, action_data)
 		return
 	
-	var skill_id := cmd.actor.skills[cmd.skill_index]
+	var skill_id: String = cmd.actor.skills[cmd.skill_index]
 	var skill := SkillDatabase.get_skill(skill_id) if SkillDatabase._initialized else null
 	
 	if skill == null:

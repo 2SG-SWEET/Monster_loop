@@ -8,6 +8,7 @@ var _combat_manager: CombatManager = null
 
 func _ready():
 	SkillDatabase.initialize()
+	MonsterDatabase.initialize()
 	
 	EventBus.game_phase_changed.connect(_on_game_phase_changed)
 	EventBus.combat_triggered.connect(_on_combat_triggered)

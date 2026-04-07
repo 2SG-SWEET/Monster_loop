@@ -48,22 +48,26 @@ func generate_monster() -> Dictionary:
 		return {}
 	
 	var element := module_data.get_random_spawn_element()
+	var monster := MonsterDatabase.get_monster_by_element(element)
+	
+	if monster == null:
+		monster = MonsterDatabase.get_random_monster(true)
+	
+	if monster == null:
+		return {}
+	
 	var tier := SaveManager.get_player_tier()
+	var level := randi_range(1, 3) + tier
 	var diff_mult := GameManager.get_difficulty_multiplier()
 	
-	return {
-		"uuid": "monster_%d" % Time.get_ticks_msec(),
-		"display_name": _get_monster_name_by_element(element),
-		"element": element,
-		"level": randi_range(1, 3) + tier,
-		"hp": int(80 * diff_mult),
-		"max_hp": int(80 * diff_mult),
-		"atk": int(25 * diff_mult),
-		"def": int(15 * diff_mult),
-		"spd": 15 + randi_range(0, 10),
-		"skills": ["tackle", _get_skill_by_element(element)],
-		"module_id": module_data.module_id
-	}
+	var instance := MonsterDatabase.create_instance(monster.monster_id, level)
+	instance.hp = int(instance.hp * diff_mult)
+	instance.max_hp = int(instance.max_hp * diff_mult)
+	instance.atk = int(instance.atk * diff_mult)
+	instance.def = int(instance.def * diff_mult)
+	instance.module_id = module_data.module_id
+	
+	return instance
 
 func get_special_effect() -> Dictionary:
 	if not module_data:
