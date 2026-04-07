@@ -132,7 +132,88 @@ func _setup_initial_state() -> void:
 	_current_loop = 0
 	_boss_progress = 0
 	_total_charge = 10
+	_setup_hand()
 	_update_ui()
+
+func _setup_hand() -> void:
+	# 获取手牌容器
+	var hand_ui := $UI/HandUI
+	var card_list := hand_ui.get_node_or_null("VBoxContainer/CardList")
+	if card_list == null:
+		return
+	
+	# 清除旧按钮
+	for child in card_list.get_children():
+		child.queue_free()
+	
+	# 从存档获取卡组，如果没有则使用默认卡组
+	var deck_cards: Array = []
+	var save_data := SaveManager.get_data()
+	var deck_data: Dictionary = save_data.get("deck", {})
+	var cards: Array = deck_data.get("cards", [])
+	
+	if cards.is_empty():
+		# 默认卡组
+		deck_cards = [
+			{"module_id": "light_forest", "count": 2},
+			{"module_id": "abandoned_lab", "count": 1},
+			{"module_id": "lava_crack", "count": 2}
+		]
+	else:
+		deck_cards = cards
+	
+	# 创建手牌按钮
+	var card_index := 0
+	for card in deck_cards:
+		var module_id: String = card.get("module_id", "")
+		var count: int = card.get("count", 1)
+		
+		for i in range(count):
+			var btn := Button.new()
+			btn.custom_minimum_size = Vector2(60, 80)
+			btn.text = _get_card_short_name(module_id)
+			
+			# 设置按钮样式
+			match module_id:
+				"light_forest":
+					btn.modulate = Color(0.176, 0.314, 0.086, 1)
+				"abandoned_lab":
+					btn.modulate = Color(0.29, 0.333, 0.408, 1)
+				"lava_crack":
+					btn.modulate = Color(0.773, 0.188, 0.188, 1)
+				_:
+					btn.modulate = Color(0.5, 0.5, 0.5, 1)
+			
+			btn.pressed.connect(_on_hand_card_pressed.bind(card_index))
+			card_list.add_child(btn)
+			card_index += 1
+	
+	print("手牌初始化完成，共 %d 张" % card_index)
+
+func _get_card_short_name(module_id: String) -> String:
+	match module_id:
+		"light_forest": return "森林"
+		"abandoned_lab": return "实验室"
+		"lava_crack": return "熔岩"
+		_: return module_id.left(2)
+
+var _selected_card_index: int = -1
+
+func _on_hand_card_pressed(index: int) -> void:
+	_selected_card_index = index
+	print("选中手牌: %d" % index)
+	_highlight_available_slots()
+
+func _highlight_available_slots() -> void:
+	# 高亮显示可放置的格子
+	for i in range(_grid_slots.size()):
+		var marker := _grid_slots[i]
+		var visual := marker.get_node_or_null("Visual")
+		if visual != null:
+			if not _placed_modules.has(i):
+				visual.default_color = Color(1, 1, 0, 1)  # 黄色高亮
+			else:
+				visual.default_color = Color(1, 1, 1, 0.3)  # 半透明白色
 
 func _process(delta: float) -> void:
 	if not _is_moving:
@@ -161,6 +242,47 @@ func _update_ui() -> void:
 	if _progress_bar:
 		_progress_bar.max_value = _total_charge
 		_progress_bar.value = _boss_progress
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if _selected_card_index >= 0:
+			var mouse_pos := get_global_mouse_position()
+			var grid_index := get_grid_index_at_position(mouse_pos)
+			if grid_index >= 0 and not _placed_modules.has(grid_index):
+				_place_selected_module_at(grid_index)
+
+func _place_selected_module_at(grid_index: int) -> void:
+	# 获取选中的手牌信息
+	var hand_ui := $UI/HandUI
+	var card_list := hand_ui.get_node_or_null("VBoxContainer/CardList")
+	if card_list == null or _selected_card_index >= card_list.get_child_count():
+		return
+	
+	var btn := card_list.get_child(_selected_card_index)
+	var module_id := ""
+	
+	# 根据按钮颜色反推模块ID
+	if btn.modulate.is_equal_approx(Color(0.176, 0.314, 0.086, 1)):
+		module_id = "light_forest"
+	elif btn.modulate.is_equal_approx(Color(0.29, 0.333, 0.408, 1)):
+		module_id = "abandoned_lab"
+	elif btn.modulate.is_equal_approx(Color(0.773, 0.188, 0.188, 1)):
+		module_id = "lava_crack"
+	else:
+		module_id = "unknown"
+	
+	place_module(module_id, grid_index)
+	
+	# 移除使用的手牌
+	btn.queue_free()
+	_selected_card_index = -1
+	
+	# 重置格子高亮
+	for i in range(_grid_slots.size()):
+		var marker := _grid_slots[i]
+		var visual := marker.get_node_or_null("Visual")
+		if visual != null:
+			visual.default_color = Color(1, 1, 1, 0.5)
 
 func place_module(module_id: String, grid_index: int) -> void:
 	if grid_index < 0 or grid_index >= _grid_slots.size():
