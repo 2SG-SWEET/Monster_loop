@@ -80,13 +80,35 @@ var _boss_entity: Node2D = null
 
 #region 内置虚函数
 func _ready() -> void:
+	print("🎮 [GameScene] 开始初始化...")
+
+	print("  📦 [1/6] 检查/生成占位资源...")
 	_ensure_assets_exist()
+	print("  ✅ [1/6] 资源检查完成")
+
+	print("  🛤️  [2/6] 设置跑道视觉...")
 	_setup_track_visuals()
+	print("  ✅ [2/6] 跑道设置完成")
+
+	print("  🔀 [3/6] 设置路径...")
 	_setup_path()
+	print("  ✅ [3/6] 路径设置完成")
+
+	print("  🔲 [4/6] 创建网格插槽...")
 	_setup_grid_slots()
+	print("  ✅ [4/6] 插槽创建完成 (共 %d 个)" % _grid_slots.size())
+
+	print("  👤 [5/6] 设置玩家视觉...")
 	_setup_player_visual()
+	print("  ✅ [5/6] 玩家设置完成")
+
+	print("  ⚙️  [6/6] 初始化游戏状态...")
 	_setup_initial_state()
-	print("游戏场景初始化完成 (图片资源版)")
+	print("  ✅ [6/6] 状态初始化完成")
+
+	print("\n🎉 游戏场景初始化完成 (图片资源版)")
+	print("   - 网格插槽: %d 个" % _grid_slots.size())
+	print("   - 视觉节点: 跑道背景, 玩家精灵")
 
 func _process(delta: float) -> void:
 	_animation_time += delta
@@ -122,6 +144,7 @@ func _input(event: InputEvent) -> void:
 
 #region 资源管理
 func _ensure_assets_exist() -> void:
+	print("    📁 创建目录结构...")
 	var base_dir: String = ASSETS_BASE
 	DirAccess.make_dir_recursive_absolute(base_dir + "track")
 	DirAccess.make_dir_recursive_absolute(base_dir + "slots")
@@ -129,18 +152,43 @@ func _ensure_assets_exist() -> void:
 	DirAccess.make_dir_recursive_absolute(base_dir + "modules")
 	DirAccess.make_dir_recursive_absolute(base_dir + "entities")
 
+	print("    🔍 检查资源文件...")
+
 	if not ResourceLoader.exists(TRACK_BG_PATH):
+		print("      ⚙️  生成跑道背景...")
 		_create_placeholder_track_bg()
+	else:
+		print("      ✓ 跑道背景已存在")
+
 	if not ResourceLoader.exists(SLOT_EMPTY_PATH):
+		print("      ⚙️  生成格子插槽...")
 		_create_placeholder_slots()
+	else:
+		print("      ✓ 格子插槽已存在")
+
 	if not ResourceLoader.exists(CARD_FOREST_PATH):
+		print("      ⚙️  生成卡片资源...")
 		_create_placeholder_cards()
+	else:
+		print("      ✓ 卡片资源已存在")
+
 	if not ResourceLoader.exists(MODULE_FOREST_PATH):
+		print("      ⚙️  生成模块图标...")
 		_create_placeholder_modules()
+	else:
+		print("      ✓ 模块图标已存在")
+
 	if not ResourceLoader.exists(PLAYER_PATH):
+		print("      ⚙️  生成玩家精灵...")
 		_create_placeholder_player()
+	else:
+		print("      ✓ 玩家精灵已存在")
+
 	if not ResourceLoader.exists(BOSS_PATH):
+		print("      ⚙️  生成BOSS精灵...")
 		_create_placeholder_boss()
+	else:
+		print("      ✓ BOSS精灵已存在")
 
 func _create_placeholder_track_bg() -> void:
 	var img: Image = Image.create(620, 420, true, Image.FORMAT_RGBA8)
