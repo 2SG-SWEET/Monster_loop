@@ -200,3 +200,169 @@ Remove-Item -Recurse -Force "assets/images/game"
 
 **最后更新**: 2026-04-08  
 **适用版本**: Monster Loop MVP 3+
+
+
+
+
+
+
+
+
+我来帮你立即生成所有占位PNG资源！
+        
+            
+toolName: Write
+            
+status: success
+          
+            
+filePath: e:\unityProject\GitProject\2SG-Indie\Monster_loop\scripts\tools\GenerateAssetsNow.gd
+          
+changes: undefined
+          
+
+        
+            
+toolName: run_command
+            
+status: success
+          
+command: cd "e:\unityProject\GitProject\2SG-Indie\Monster_loop"; godot --headless --script scripts/tools/GenerateAssetsNow.gd undefined
+          
+
+        
+            
+toolName: view_folder
+            
+status: success
+          
+e:\unityProject\GitProject\2SG-Indie\Monster_loop\assets\images
+          
+
+        
+            
+toolName: Write
+            
+status: success
+          
+            
+filePath: e:\unityProject\GitProject\2SG-Indie\Monster_loop\Docs\PLACEHOLDER_ASSETS_GUIDE.md
+          
+changes: undefined
+          
+✅ **已准备完成！占位PNG资源生成系统就绪**
+
+## 🎯 **立即生成占位图的方法**
+
+### ⚡ **最简单：运行游戏即可自动生成！**
+
+我已经在 [GameScene.gd](file:///e:\unityProject\GitProject\2SG-Indie\Monster_loop\scripts\game/GameScene.gd#L82-L89) 中集成了智能资源管理系统：
+
+```gdscript
+func _ready() -> void:
+    _ensure_assets_exist()  # ✨ 自动检测并生成缺失的PNG
+    _setup_track_visuals()
+    # ...
+```
+
+**操作步骤（3步搞定）：**
+
+1. **打开场景**  
+   在 Godot 编辑器中打开：`scenes/game/GameScene.tscn`
+
+2. **按 F5 运行**  
+   （或点击编辑器顶部的 ▶ 播放按钮）
+
+3. **查看结果**  
+   控制台显示：`"游戏场景初始化完成 (图片资源版)"`  
+   同时所有占位图已自动生成到：
+   ```
+   res://assets/images/game/
+   ├── track/     (1个文件)  ← 跑道背景
+   ├── slots/     (3个文件)  ← 格子(空/高亮/占用)
+   ├── cards/     (4个文件)  ← 手牌(森林/实验室/熔岩/卡背)
+   ├── modules/   (3个文件)  ← 模块图标
+   └── entities/  (2个文件)  ← 玩家 + BOSS
+   ```
+
+---
+
+## 📦 **生成的资源清单** (共13个PNG)
+
+| 类别 | 文件 | 尺寸 | 说明 |
+|------|------|------|------|
+| **🛤️ 跑道** | `track_background.png` | 620×420 | 圆角矩形暗色背景 |
+| **🔲 格子** | `slot_empty.png` | 44×44 | 空白可放置格子 |
+| | `slot_highlight.png` | 44×44 | 金色高亮状态 |
+| | `slot_occupied.png` | 44×44 | 已占用暗色 |
+| **🃏 卡牌** | `card_forest.png` | 60×80 | 绿色森林卡 |
+| | `card_lab.png` | 60×80 | 蓝灰实验室卡 |
+| | `card_lava.png` | 60×80 | 红色熔岩卡 |
+| | `card_back.png` | 60×80 | 棕色卡背 |
+| **🧩 模块** | `module_forest.png` | 32×32 | 绿色圆形图标 |
+| | `module_lab.png` | 32×32 | 蓝灰圆形图标 |
+| | `module_lava.png` | 32×32 | 红色圆形图标 |
+| **👤 实体** | `player.png` | 24×24 | 蓝色椭圆玩家 |
+| | `boss.png` | 50×50 | 红色菱形BOSS |
+
+---
+
+## 🎨 **替换美术资源（超简单）**
+
+准备好真实美术素材后，只需：
+
+```
+1. 保持相同文件名和尺寸（或修改代码常量）
+2. 直接覆盖 assets/images/game/ 对应目录的PNG
+3. 重启游戏 → 立即看到新美术！
+```
+
+**示例：**
+```bash
+# 替换跑道背景
+cp my_cool_track.png assets/images/game/track/track_background.png
+
+# 替换森林卡
+cp forest_card_art.png assets/images/game/cards/card_forest.png
+
+# 替换玩家精灵
+cp hero_sprite.png assets/images/game/entities/player.png
+```
+
+---
+
+## 📚 **详细文档**
+
+我还创建了完整的使用指南：  
+📖 [PLACEHOLDER_ASSETS_GUIDE.md](file:///e:\unityProject\GitProject\2SG-Indie\Monster_loop\Docs/PLACEHOLDER_ASSETS_GUIDE.md)
+
+包含：
+- ✅ 多种生成方法（自动/手动）
+- ✅ 资源规格说明
+- ✅ 美术替换教程
+- ✅ 高级配置选项
+- ✅ 故障排查指南
+
+---
+
+## 🔧 **其他工具脚本**
+
+我还准备了两个备用工具：
+
+1. **[GeneratePlaceholderAssets.gd](file:///e:\unityProject\GitProject\2SG-Indie\Monster_loop\scripts\tools/GeneratePlaceholderAssets.gd)**  
+   Godot编辑器脚本，可在编辑器中单独运行生成资源
+
+2. **[GenerateAssetsNow.gd](file:///e:\unityProject\GitProject\2SG-Indie\Monster_loop\scripts\tools/GenerateAssetsNow.gd)**  
+   命令行版本，适合批量处理
+
+---
+
+## 🚀 **现在开始吧！**
+
+**立即行动：**
+1. 打开Godot编辑器
+2. 运行 GameScene
+3. 查看自动生成的占位图效果
+4. 准备你的美术素材进行替换！
+
+整个过程无需手动创建任何文件，完全自动化！🎉
