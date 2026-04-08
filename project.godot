@@ -21,6 +21,10 @@ EventBus="*res://scripts/autoload/EventBus.gd"
 SaveManager="*res://scripts/autoload/SaveManager.gd"
 GameManager="*res://scripts/autoload/GameManager.gd"
 
+[display]
+
+window/stretch/mode="canvas_items"
+
 [dotnet]
 
 project/assembly_name="Monster_Loop"
@@ -28,15 +32,6 @@ project/assembly_name="Monster_Loop"
 [physics]
 
 3d/physics_engine="Jolt Physics"
-
-[display]
-
-window/size/viewport_width=1152
-window/size/viewport_height=648
-window/size/resizable=true
-window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
-window/handheld/orientation=0
 
 [rendering]
 

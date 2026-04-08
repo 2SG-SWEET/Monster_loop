@@ -50,8 +50,8 @@ var _boss_sprite: Sprite2D = null
 #endregion
 
 #region 变量
-var _grid_slots: Array[Marker2D] = []
-var _slot_visuals: Array[TextureRect] = []
+var _grid_slots: Array = []
+var _slot_visuals: Array = []
 var _placed_modules: Dictionary = {}
 var _is_moving: bool = true
 var _current_loop: int = 0
@@ -63,7 +63,7 @@ var _selected_card_index: int = -1
 var _is_dragging: bool = false
 var _drag_card_index: int = -1
 var _drag_card_sprite: TextureRect = null
-var _drag_original_btn: Button = null
+var _drag_original_btn: TextureButton = null
 var _drag_module_id: String = ""
 
 # 碰撞检测
@@ -196,7 +196,7 @@ func _create_placeholder_slots() -> void:
 	img_occupied.save_png(SLOT_OCCUPIED_PATH)
 
 func _create_placeholder_cards() -> void:
-	var card_configs: Array[Dictionary] = [
+	var card_configs: Array = [
 		{"path": CARD_FOREST_PATH, "color": Color(0.176, 0.314, 0.086, 1)},
 		{"path": CARD_LAB_PATH, "color": Color(0.29, 0.333, 0.408, 1)},
 		{"path": CARD_LAVA_PATH, "color": Color(0.773, 0.188, 0.188, 1)},
@@ -217,7 +217,7 @@ func _create_placeholder_cards() -> void:
 		img.save_png(config["path"])
 
 func _create_placeholder_modules() -> void:
-	var module_configs: Array[Dictionary] = [
+	var module_configs: Array = [
 		{"path": MODULE_FOREST_PATH, "color": Color(0.176, 0.314, 0.086, 1)},
 		{"path": MODULE_LAB_PATH, "color": Color(0.29, 0.333, 0.408, 1)},
 		{"path": MODULE_LAVA_PATH, "color": Color(0.773, 0.188, 0.188, 1)}
@@ -377,7 +377,7 @@ func _setup_hand() -> void:
 	for child in card_list.get_children():
 		child.queue_free()
 
-	var deck_cards: Array[Dictionary] = [
+	var deck_cards: Array = [
 		{"module_id": "light_forest", "count": 2},
 		{"module_id": "abandoned_lab", "count": 1},
 		{"module_id": "lava_crack", "count": 2}
