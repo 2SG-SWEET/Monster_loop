@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://gamescene_whitebox"]
+[gd_scene load_steps=3 format=3 uid="uid://gamescene_v2"]
 
 [ext_resource type="Script" path="res://scripts/game/GameScene.gd" id="1_gamescene"]
 
@@ -8,13 +8,29 @@
 script = ExtResource("1_gamescene")
 
 [node name="Background" type="ColorRect" parent="."]
-offset_left = -640.0
-offset_top = -360.0
-offset_right = 640.0
-offset_bottom = 360.0
-color = Color(0.0392157, 0.0392157, 0.0392157, 1)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -576.0
+offset_top = -324.0
+offset_right = 576.0
+offset_bottom = 324.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.06, 0.08, 1)
 
 [node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="TrackContainer" type="Node2D" parent="."]
+
+[node name="TrackBackground" type="Polygon2D" parent="TrackContainer"]
+color = Color(0.15, 0.18, 0.12, 1)
+
+[node name="TrackStrokeArea" type="Node2D" parent="TrackContainer"]
+
+[node name="GridMarkers" type="Node2D" parent="TrackContainer"]
+
+[node name="CornerMarks" type="Node2D" parent="TrackContainer"]
 
 [node name="PathContainer" type="Node2D" parent="."]
 
@@ -22,14 +38,13 @@ color = Color(0.0392157, 0.0392157, 0.0392157, 1)
 curve = SubResource("Curve2D_loop")
 
 [node name="PathVisual" type="Line2D" parent="PathContainer"]
-width = 40.0
-default_color = Color(0.29, 0.29, 0.29, 1)
-
-[node name="GridMarkers" type="Node2D" parent="PathContainer"]
+width = 64.0
+default_color = Color(0.25, 0.18, 0.1, 0.6)
 
 [node name="PlayerContainer" type="Node2D" parent="."]
 
 [node name="Player" type="PathFollow2D" parent="PlayerContainer"]
+loop = true
 
 [node name="PlayerVisual" type="Polygon2D" parent="PlayerContainer/Player"]
 position = Vector2(-8, -8)
